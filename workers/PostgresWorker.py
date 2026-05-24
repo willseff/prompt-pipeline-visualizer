@@ -4,23 +4,40 @@ import os
 from sqlalchemy.sql import text
 from queue import Empty
 
+from metrics import get_collector
+
 
 class PostgresMasterScheduler(threading.Thread):
+    _instance_counter = 0
+    _counter_lock = threading.Lock()
+
     def __init__(self, input_queue, **kwargs):
         super().__init__()
         self._input_queue = input_queue
+        self._metrics = get_collector()
+        with PostgresMasterScheduler._counter_lock:
+            PostgresMasterScheduler._instance_counter += 1
+            self._worker_id = f"Postgres[{PostgresMasterScheduler._instance_counter}]"
+        self._metrics.worker_state(self._worker_id, "postgres", "starting")
 
         self.start()
 
     def run(self):
         while True:
+            self._metrics.worker_state(
+                self._worker_id, "postgres", "idle", "waiting for record"
+            )
             try:
                 val = self._input_queue.get(timeout=10)  # if no value in 10 seconds
                 prompt, response, response_time = val
+                self._metrics.worker_state(
+                    self._worker_id, "postgres", "inserting", prompt[:60]
+                )
                 postgresWorker = PostgresWorker(prompt, response, response_time)
                 postgresWorker.insert_into_db()
             except Empty:
                 print("Timeout reached in postgres, scheduler stopping")
+                self._metrics.worker_state(self._worker_id, "postgres", "done")
                 break
 
 
