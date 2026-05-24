@@ -91,7 +91,7 @@ STATE_BADGES = {
     "done": "✅ done",
 }
 
-ACTIVE_WINDOW_S = 1.5
+ACTIVE_WINDOW_S = 0.6
 
 
 def render(snap):
@@ -137,7 +137,7 @@ def render(snap):
         st.dataframe(
             pd.DataFrame(wrows),
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
             height=min(48 + 35 * len(wrows), 400),
         )
 
@@ -177,7 +177,7 @@ def render(snap):
             st.dataframe(
                 pd.DataFrame(rows),
                 hide_index=True,
-                use_container_width=True,
+                width="stretch",
                 height=320,
             )
 
