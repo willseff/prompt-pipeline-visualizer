@@ -10,9 +10,8 @@ class AlpacaProducer(threading.Thread):
         super().__init__()
         self._output_queues = output_queues
         self._num_prompts = int(os.environ.get("NUM_PROMPTS", "20"))
-        self._dataset_url = (
-            "hf://datasets/yahma/alpaca-cleaned/alpaca_data_cleaned.json"
-        )
+        # Source: hf://datasets/yahma/alpaca-cleaned/alpaca_data_cleaned.json
+        self._dataset_path = "data/alpaca_data_cleaned.json"
         self._metrics = get_collector()
         self._worker_id = "AlpacaProducer"
 
@@ -20,7 +19,7 @@ class AlpacaProducer(threading.Thread):
             self._worker_id, "alpaca", "loading", f"NUM_PROMPTS={self._num_prompts}"
         )
         print(f"AlpacaProducer loading dataset (NUM_PROMPTS={self._num_prompts})")
-        df = pd.read_json(self._dataset_url)
+        df = pd.read_json(self._dataset_path)
         if self._num_prompts > 0:
             df = df.head(self._num_prompts)
         self._instructions = df["instruction"].tolist()

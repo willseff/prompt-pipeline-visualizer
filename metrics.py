@@ -22,13 +22,24 @@ class StatsCollector:
 
     def worker_state(self, worker_id, kind, state, detail=""):
         with self._lock:
+            existing = self.workers.get(worker_id, {})
             self.workers[worker_id] = {
                 "id": worker_id,
                 "kind": kind,
                 "state": state,
                 "detail": detail,
                 "updated": time(),
+                "processed": existing.get("processed", 0),
+                "last_busy": existing.get("last_busy", 0.0),
             }
+
+    def worker_tick(self, worker_id):
+        with self._lock:
+            w = self.workers.get(worker_id)
+            if w is None:
+                return
+            w["processed"] += 1
+            w["last_busy"] = time()
 
     def started(self, prompt):
         with self._lock:

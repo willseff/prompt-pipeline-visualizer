@@ -44,3 +44,4 @@ class JsonLinesScheduler(threading.Thread):
             )
             with open(self._output_path, "a", encoding="utf-8") as f:
                 f.write(line)
+            self._metrics.worker_tick(self._worker_id)

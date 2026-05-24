@@ -35,6 +35,7 @@ class PostgresMasterScheduler(threading.Thread):
                 )
                 postgresWorker = PostgresWorker(prompt, response, response_time)
                 postgresWorker.insert_into_db()
+                self._metrics.worker_tick(self._worker_id)
             except Empty:
                 print("Timeout reached in postgres, scheduler stopping")
                 self._metrics.worker_state(self._worker_id, "postgres", "done")

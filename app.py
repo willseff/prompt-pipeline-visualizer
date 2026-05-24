@@ -83,12 +83,15 @@ STATE_BADGES = {
     "loaded": "🟢 loaded",
     "queueing": "🔵 queueing",
     "idle": "⚪ idle",
+    "active": "🟢 active",
     "calling api": "🔵 calling api",
     "inserting": "🔵 inserting",
     "writing": "🔵 writing",
     "backoff": "🟠 backoff",
     "done": "✅ done",
 }
+
+ACTIVE_WINDOW_S = 1.5
 
 
 def render(snap):
@@ -116,15 +119,21 @@ def render(snap):
             snap["workers"],
             key=lambda w: (KIND_ORDER.get(w["kind"], 99), w["id"]),
         )
-        wrows = [
-            {
-                "worker": w["id"],
-                "state": STATE_BADGES.get(w["state"], w["state"]),
-                "detail": w["detail"],
-                "updated": f"{now - w['updated']:.1f}s ago",
-            }
-            for w in workers
-        ]
+        wrows = []
+        for w in workers:
+            state = w["state"]
+            last_busy = w.get("last_busy", 0.0)
+            if state == "idle" and last_busy and now - last_busy < ACTIVE_WINDOW_S:
+                state = "active"
+            wrows.append(
+                {
+                    "worker": w["id"],
+                    "state": STATE_BADGES.get(state, state),
+                    "processed": w.get("processed", 0),
+                    "detail": w["detail"],
+                    "updated": f"{now - w['updated']:.1f}s ago",
+                }
+            )
         st.dataframe(
             pd.DataFrame(wrows),
             hide_index=True,
