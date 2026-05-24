@@ -1,0 +1,14 @@
+[project]
+name = "prompt-pipeline"
+version = "0.1.0"
+description = "Threading concurrent worker model to call Claude API"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "huggingface-hub>=1.16.1",
+    "pandas>=3.0.3",
+    "psycopg2>=2.9.11",
+    "psycopg2-binary>=2.9.11",
+    "pyyaml>=6.0.3",
+    "sqlalchemy>=2.0.44",
+]

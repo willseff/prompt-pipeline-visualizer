@@ -1,0 +1,42 @@
+queues:
+  - name: PromptQueue
+    description: instructions pulled from the alpaca-cleaned dataset
+
+  - name: PostgresUploading
+    description: (prompt, response, response_time) tuples bound for Postgres
+
+  - name: JsonLinesUploading
+    description: (prompt, response, response_time) tuples bound for the JSONL file
+
+workers:
+  - name: AlpacaProducer
+    description: emits instructions from yahma/alpaca-cleaned (count via NUM_PROMPTS env var)
+    location: workers.AlpacaWorker
+    class: AlpacaProducer
+    instances: 1
+    output_queues:
+      - PromptQueue
+
+  - name: ClaudeWorker
+    description: calls the fake Claude client with recursive exponential backoff
+    location: workers.ClaudeWorker
+    class: ClaudeScheduler
+    instances: 5
+    input_queue: PromptQueue
+    output_queues:
+      - PostgresUploading
+      - JsonLinesUploading
+
+  - name: PostgresUploaderWorker
+    description: inserts records into the prompts table
+    location: workers.PostgresWorker
+    class: PostgresMasterScheduler
+    instances: 2
+    input_queue: PostgresUploading
+
+  - name: JsonLinesWorker
+    description: appends records to JSONL_OUTPUT (default output/prompts.jsonl) - must stay instances=1
+    location: workers.JsonLinesWorker
+    class: JsonLinesScheduler
+    instances: 1
+    input_queue: JsonLinesUploading
