@@ -98,8 +98,6 @@ pillow==12.2.0
     # via streamlit
 protobuf==7.35.0
     # via streamlit
-psycopg2==2.9.12
-    # via prompt-pipeline
 psycopg2-binary==2.9.12
     # via prompt-pipeline
 pyarrow==24.0.0
@@ -151,8 +149,11 @@ typer==0.25.1
 typing-extensions==4.15.0
     # via
     #   altair
+    #   anyio
     #   huggingface-hub
+    #   referencing
     #   sqlalchemy
+    #   starlette
     #   streamlit
 tzdata==2026.2 ; sys_platform == 'emscripten' or sys_platform == 'win32'
     # via pandas
