@@ -55,7 +55,7 @@ st.caption("Alpaca prompts → fake Claude (recursive backoff) → Postgres + JS
 with st.sidebar:
     st.header("Controls")
     num_prompts = st.number_input(
-        "NUM_PROMPTS", min_value=1, max_value=10000, value=20, step=1
+        "NUM_PROMPTS", min_value=1, max_value=10000, value=100, step=1
     )
     running = pipeline_running()
     if st.button("Run Pipeline", disabled=running, type="primary"):
